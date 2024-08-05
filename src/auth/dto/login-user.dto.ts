@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 
 export class LoginUserDto {
@@ -15,5 +15,5 @@ export class LoginUserDto {
         message: 'The password must have a Uppercase, lowercase letter and a number'
     })
     password: string;
-    
+
 }

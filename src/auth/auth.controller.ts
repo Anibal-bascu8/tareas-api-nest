@@ -1,64 +1,95 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginUserDto } from './dto/login-user.dto';
+import { Controller, Get, Post, Body, UseGuards, Req, Headers, SetMetadata } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
-import { RoleProtected } from './decorators/role-protected.decorator';
-import { ValidRoles } from './interfaces/valid-roles';
-import { UserRoleGuard } from './guards/user-role.guard';
-import { GetUser } from './decorators/get-user.decorator';
-import { Auth } from './decorators/auth.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+import { IncomingHttpHeaders } from 'http';
+
+import { AuthService } from './auth.service';
+import { RawHeaders, GetUser, Auth } from './decorators';
+import { RoleProtected } from './decorators/role-protected.decorator';
+
+import { CreateUserDto, LoginUserDto } from './dto';
+import { User } from './entities/user.entity';
+import { UserRoleGuard } from './guards/user-role.guard';
+import { ValidRoles } from './interfaces';
+
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
+  constructor(private readonly authService: AuthService) {}
 
-    
-  constructor(private authService: AuthService) {}
+
 
   @Post('register')
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.authService.create(createUserDto);
+  createUser(@Body() createUserDto: CreateUserDto ) {
+    return this.authService.create( createUserDto );
   }
 
   @Post('login')
-  login(@Body() loginUserDto: LoginUserDto) {
-    return this.authService.login(loginUserDto)
+  loginUser(@Body() loginUserDto: LoginUserDto ) {
+    return this.authService.login( loginUserDto );
   }
+
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(
+    @GetUser() user: User
+  ) {
+    return this.authService.checkAuthStatus( user );
+  }
+
 
   @Get('private')
   @UseGuards( AuthGuard() )
-  testingPrivateRout( ) {
+  testingPrivateRoute(
+    @Req() request: Express.Request,
+    @GetUser() user: User,
+    @GetUser('email') userEmail: string,
     
+    @RawHeaders() rawHeaders: string[],
+    @Headers() headers: IncomingHttpHeaders,
+  ) {
+
+
     return {
       ok: true,
-      message: 'hola mundo, entraste a una ruta privada'
+      message: 'Hola Mundo Private',
+      user,
+      userEmail,
+      rawHeaders,
+      headers
     }
   }
+
+
+  // @SetMetadata('roles', ['admin','super-user'])
 
   @Get('private2')
-  @RoleProtected(ValidRoles.superUser)
+  @RoleProtected( ValidRoles.superUser, ValidRoles.admin )
   @UseGuards( AuthGuard(), UserRoleGuard )
-  testingPrivateRout2(
+  privateRoute2(
     @GetUser() user: User
   ) {
-    
+
     return {
       ok: true,
-      message: 'hola mundo, entraste a una ruta privada'
+      user
     }
   }
 
-  
+
   @Get('private3')
-  @Auth(ValidRoles.admin, ValidRoles.superUser)
-  testingPrivateRout3(
+  @Auth( ValidRoles.admin )
+  privateRoute3(
     @GetUser() user: User
   ) {
-    
+
     return {
       ok: true,
-      message: 'hola mundo, entraste a una ruta privada'
+      user
     }
   }
+
+
+
 }

@@ -2,16 +2,22 @@ import { Controller, Get, Post, Body, UseGuards, Req, Headers, SetMetadata } fro
 import { AuthGuard } from '@nestjs/passport';
 import { ApiTags } from '@nestjs/swagger';
 
-import { IncomingHttpHeaders } from 'http';
 
 import { AuthService } from './auth.service';
-import { RawHeaders, GetUser, Auth } from './decorators';
+
 import { RoleProtected } from './decorators/role-protected.decorator';
 
-import { CreateUserDto, LoginUserDto } from './dto';
+
 import { User } from './entities/user.entity';
 import { UserRoleGuard } from './guards/user-role.guard';
-import { ValidRoles } from './interfaces';
+
+
+import { Auth } from './decorators/auth.decorator';
+import { GetUser } from './decorators/get-user.decorator';
+import { RawHeaders } from './decorators/raw-headers.decorator';
+import { ValidRoles } from './interfaces/valid-roles';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -38,28 +44,6 @@ export class AuthController {
     return this.authService.checkAuthStatus( user );
   }
 
-
-  @Get('private')
-  @UseGuards( AuthGuard() )
-  testingPrivateRoute(
-    @Req() request: Express.Request,
-    @GetUser() user: User,
-    @GetUser('email') userEmail: string,
-    
-    @RawHeaders() rawHeaders: string[],
-    @Headers() headers: IncomingHttpHeaders,
-  ) {
-
-
-    return {
-      ok: true,
-      message: 'Hola Mundo Private',
-      user,
-      userEmail,
-      rawHeaders,
-      headers
-    }
-  }
 
 
   // @SetMetadata('roles', ['admin','super-user'])

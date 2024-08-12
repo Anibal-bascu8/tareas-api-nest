@@ -9,7 +9,7 @@ export class PaginationDto {
     @ApiProperty({
         default: 10, description: 'How many rows do you need'
     })
-    @IsOptional()
+    // @IsOptional()
     @IsPositive()
     @Type( () => Number ) // enableImplicitConversions: true
     limit?: number;
@@ -17,7 +17,7 @@ export class PaginationDto {
     @ApiProperty({
         default: 0, description: 'How many rows do you want to skip'
     })
-    @IsOptional()
+    // @IsOptional()
     @Min(0)
     @Type( () => Number ) // enableImplicitConversions: true
     offset?: number;

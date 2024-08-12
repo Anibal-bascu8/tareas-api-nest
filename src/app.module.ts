@@ -1,16 +1,15 @@
-import { join } from 'path';
-
 import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ServeStaticModule } from '@nestjs/serve-static';
-
-import { ProductsModule } from './products/products.module';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
+import { TareasModule } from './tareas/tareas.module';
 
 @Module({
   imports: [
+    
     ConfigModule.forRoot(),
 
     TypeOrmModule.forRoot({
@@ -30,13 +29,13 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true,
     }),
 
-    ProductsModule,
-
     CommonModule,
 
     AuthModule,
 
-
+    TareasModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

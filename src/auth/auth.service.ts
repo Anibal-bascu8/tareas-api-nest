@@ -6,8 +6,10 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { User } from './entities/user.entity';
-import { LoginUserDto, CreateUserDto } from './dto';
+
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { CreateUserDto } from './dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
 
 
 @Injectable()
@@ -33,6 +35,7 @@ export class AuthService {
       });
 
       await this.userRepository.save( user )
+      // console.log(user);
       delete user.password;
 
       return {

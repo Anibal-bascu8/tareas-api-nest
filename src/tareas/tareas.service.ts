@@ -5,6 +5,7 @@ import { Tarea } from './entities/tarea.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class TareasService {
@@ -14,10 +15,12 @@ export class TareasService {
     private readonly tareaRepository: Repository<Tarea>,
   ) { }
 
-  async create(createTareaDto: CreateTareaDto) {
+  async create(createTareaDto: CreateTareaDto, user: User) {
     try {
 
       const { titulo, descripcion, terminada, fechaLimite } = createTareaDto;
+
+
 
       const tarea = this.tareaRepository.create({
         titulo,
@@ -25,6 +28,7 @@ export class TareasService {
         terminada,
         fechaCreacion: new Date(),
         fechaLimite,
+        user: user
       });
 
       await this.tareaRepository.save(tarea);
@@ -43,7 +47,7 @@ export class TareasService {
       take: limit,
       skip: offset,
     });
-    
+
 
   }
 
@@ -58,21 +62,26 @@ export class TareasService {
     return tareaEncontrada;
   }
 
-  update(id: string, updateTareaDto: UpdateTareaDto) {
-    const tareaPrevia = this.tareaRepository.findOne({
+  async update(id: string, updateTareaDto: UpdateTareaDto) {
+    const tareaPrevia = await this.tareaRepository.findOne({
       where: { id }
     });
 
     if (!tareaPrevia)
       throw new BadRequestException('Tarea no encontrada');
 
-    console.log(tareaPrevia);
+    const tareaActualizada = this.tareaRepository.merge(tareaPrevia, updateTareaDto);
 
-    return `This action updates a #${id} tarea`;
+    await this.tareaRepository.save(tareaActualizada);
+
+    return {
+      status: "ok",
+      message: 'Tarea actualizada'
+    };
   }
 
   async remove(id: string) {
-    
+
     const tareaPrevia = this.tareaRepository.findOne({
       where: { id }
     });
@@ -81,6 +90,11 @@ export class TareasService {
       throw new BadRequestException('Tarea no encontrada');
 
     await this.tareaRepository.delete({ id });
+
+    return {
+      status: "ok",
+      message: 'Tarea eliminada'
+    };
   }
 
   private handleDBExceptions(error: any) {

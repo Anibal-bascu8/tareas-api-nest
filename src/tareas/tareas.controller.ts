@@ -6,6 +6,8 @@ import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { Tarea } from './entities/tarea.entity';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from 'src/auth/entities/user.entity';
 
 @ApiTags('Tareas')
 @Controller('tareas')
@@ -17,8 +19,11 @@ export class TareasController {
   @ApiResponse({ status: 201, description: 'Tarea creada correctamente', type: Tarea  })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 403, description: 'Forbidden. Token related.' })
-  create(@Body() createTareaDto: CreateTareaDto) {
-    return this.tareasService.create(createTareaDto);
+  create(
+    @Body() createTareaDto: CreateTareaDto,
+    @GetUser() user: User,
+  ) {
+    return this.tareasService.create(createTareaDto, user);
   }
 
   @Post('obtenerTodas')

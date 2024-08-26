@@ -11,6 +11,7 @@ export class PaginationDto {
     })
     // @IsOptional()
     @IsPositive()
+    @IsOptional()
     @Type( () => Number ) // enableImplicitConversions: true
     limit?: number;
     
@@ -19,6 +20,7 @@ export class PaginationDto {
     })
     // @IsOptional()
     @Min(0)
+    @IsOptional()
     @Type( () => Number ) // enableImplicitConversions: true
     offset?: number;
 
